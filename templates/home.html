@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Home</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+/* ===== YOUR ORIGINAL THEME (UNCHANGED) ===== */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(circle at top, #111, #000);
+    color: white;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(255, 215, 0, 0.2);
+    backdrop-filter: blur(12px);
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    transition: 0.3s;
+    padding-top: 20px;
+    z-index: 1000;
+}
+
+.sidebar.closed {
+    left: -250px;
+}
+
+/* ===== PROFILE ===== */
+.profile {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.profile h3 {
+    margin: 10px 0;
+    color: gold;
+}
+
+/* ===== MENU ===== */
+.menu {
+    padding: 10px;
+}
+
+.menu button {
+    width: 100%;
+    padding: 14px;
+    margin: 6px 0;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.menu button:hover {
+    background: rgba(255, 215, 0, 0.1);
+    transform: translateX(5px);
+}
+
+/* ===== TOGGLE BUTTON ===== */
+.toggle-btn {
+    position: absolute;
+    left: 250px;
+    top: 20px;
+    background: gold;
+    border: none;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: 0.3s;
+    z-index: 1100;
+}
+
+/* move toggle when sidebar closed */
+body.sidebar-closed .toggle-btn {
+    left: 10px;
+}
+
+/* ===== MAIN CONTENT ===== */
+.main {
+    margin-left: 260px;
+    padding: 40px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+/* FIX OVERLAP BUG */
+body.sidebar-closed .main {
+    margin-left: 20px;
+}
+
+/* ===== TITLE ===== */
+h1 {
+    font-size: 36px;
+    color: gold;
+    margin-bottom: 40px;
+}
+
+/* ===== MAIN BUTTONS ===== */
+.main button {
+    padding: 18px 35px;
+    margin: 15px;
+    font-size: 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    transition: 0.2s;
+}
+
+.main button:hover {
+    transform: scale(1.08);
+    background: rgba(255, 215, 0, 0.1);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+}
+
+/* ===== CENTER FIX (SAFE METHOD) ===== */
+.center-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 600px) {
+
+    .main {
+        margin-left: 20px;
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    .toggle-btn {
+        top: 10px;
+        left: 10px;
+    }
+}
+
+</style>
+</head>
+
+<body class="sidebar-closed">
+
+<!-- SIDEBAR -->
+<div class="sidebar closed" id="sidebar">
+
+    <div class="profile">
+        <h3>Hi Nirmallya Shil</h3>
+    </div>
+
+    <div class="menu">
+        <button onclick="location.href='/analytics'">📊 Analytics</button>
+        <button onclick="location.href='/calendar'">📅 Calendar</button>
+        <button onclick="location.href='/statistics'">📈 Statistics</button>
+        <button onclick="location.href='/satsangi'">👤 Satsangi</button>
+        <button onclick="location.href='/duplicates'">🔁 Duplicates</button>
+        <button onclick="location.href='/phone'">📱 Phone</button>
+    </div>
+
+</div>
+
+<!-- TOGGLE -->
+<button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+
+<!-- MAIN -->
+<div class="main">
+
+    <div class="center-box">
+
+        <h1>Manage Satsang List</h1>
+
+        <button onclick="location.href='/create'">➕ Create List</button>
+        <button onclick="location.href='/storage'">📂 View List</button>
+
+    </div>
+
+</div>
+
+<script>
+
+function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+
+    sidebar.classList.toggle("closed");
+    document.body.classList.toggle("sidebar-closed");
+}
+
+</script>
+
+</body>
+</html>

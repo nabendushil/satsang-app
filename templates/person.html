@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Person Details</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: black;
+    color: white;
+    text-align: center;
+}
+
+.box {
+    margin: 50px auto;
+    padding: 20px;
+    width: 300px;
+    border: 1px solid gold;
+    border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>{{ name }}</h2>
+
+<p><b>Family Code:</b> {{ familycode }}</p>
+<p><b>Address:</b> {{ address }}</p>
+
+{% if phone %}
+<p><b>Phone:</b> {{ phone }}</p>
+{% else %}
+<form method="POST" action="/add_phone">
+    <input type="hidden" name="name" value="{{ name }}">
+    <input type="text" name="phone" placeholder="Enter phone" required>
+    <br><br>
+    <button type="submit">Save Phone</button>
+</form>
+{% endif %}
+
+<br>
+<button onclick="location.href='/satsangi'">⬅ Back</button>
+
+</div>
+
+</body>
+</html> 

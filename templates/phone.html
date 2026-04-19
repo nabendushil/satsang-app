@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Phone Directory</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body {
+    font-family: Arial;
+    background: #0d0d0d;
+    color: #f5c542;
+    margin: 0;
+}
+
+/* TITLE */
+h2 {
+    text-align: center;
+    margin: 15px;
+}
+
+/* MAIN LAYOUT */
+.container {
+    display: flex;
+    height: 85vh;
+}
+
+/* LEFT PANEL */
+.left {
+    width: 40%;
+    border-right: 1px solid #333;
+    overflow-y: auto;
+    text-align: center;
+}
+
+/* RIGHT PANEL */
+.right {
+    width: 60%;
+    padding: 30px;
+    text-align: left;
+    transition: 0.3s;
+}
+
+/* SEARCH */
+input {
+    padding: 12px;
+    width: 80%;
+    margin: 15px;
+    border-radius: 8px;
+    border: 1px solid #f5c542;
+    background: #111;
+    color: #f5c542;
+}
+
+/* NAME BUTTON */
+.name-btn {
+    display: block;
+    width: 80%;
+    margin: 8px auto;
+    padding: 12px;
+    border: 1px solid #f5c542;
+    background: transparent;
+    color: #f5c542;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.name-btn:hover {
+    background: #f5c542;
+    color: black;
+}
+
+/* ACTION */
+.action-box input {
+    width: 200px;
+    margin-top: 10px;
+}
+
+/* BUTTON */
+button {
+    padding: 10px 16px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.save {
+    background: green;
+    color: white;
+}
+
+.home-btn {
+    display: block;
+    margin: 10px auto;
+    padding: 10px 18px;
+    border: 1px solid #f5c542;
+    background: transparent;
+    color: #f5c542;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.home-btn:hover {
+    background: #f5c542;
+    color: black;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>📱 Phone Directory</h2>
+<br><br><br><br>
+<button onclick="location.href='/'" class="home-btn">🏠 Home</button>
+<div class="container">
+
+    <!-- LEFT SIDE -->
+    <div class="left">
+
+        <input type="text" id="search" placeholder="Search name..." onkeyup="filterNames()">
+
+        <div id="nameList">
+        {% for name in names %}
+            <button class="name-btn" onclick="getPhone('{{name}}')">{{name}}</button>
+        {% endfor %}
+        </div>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right" id="result">
+        <h3>Select a name to view phone</h3>
+    </div>
+
+</div>
+
+<script>
+
+/* 🔍 SEARCH FILTER */
+function filterNames() {
+    let input = document.getElementById("search").value.toLowerCase();
+    let buttons = document.getElementsByClassName("name-btn");
+
+    for (let btn of buttons) {
+        if (btn.innerText.toLowerCase().includes(input)) {
+            btn.style.display = "block";
+        } else {
+            btn.style.display = "none";
+        }
+    }
+}
+
+/* 📱 GET PHONE */
+function getPhone(name) {
+
+    fetch("/get_phone", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "name=" + encodeURIComponent(name)
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        document.getElementById("result").innerHTML = `
+            <h2>${data.name}</h2>
+            <p><b>Phone:</b> ${data.phone || "Not Added"}</p>
+
+            <div class="action-box">
+                <input 
+                    type="text" 
+                    id="phoneInput" 
+                    placeholder="Enter 10-digit phone"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, ''); validatePhone()"
+                >
+
+                <p id="errorMsg" style="color:red; display:none;"></p>
+
+                <br>
+                <button class="save" onclick="updatePhone('${data.name}')">Update</button>
+            </div>
+        `;
+    });
+}
+
+/* 🔄 UPDATE PHONE */
+function updatePhone(name) {
+
+    let isValid = validatePhone();
+
+    if (!isValid) {
+        return; // ❌ stop if invalid
+    }
+
+    if (!confirm("Are you sure you want to update this number?")) {
+        return;
+    }
+
+    let phone = document.getElementById("phoneInput").value;
+
+    fetch("/update_phone", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "name=" + encodeURIComponent(name) + "&phone=" + encodeURIComponent(phone)
+    })
+    .then(() => {
+        alert("✅ Updated Successfully");
+        getPhone(name);
+    });
+}
+function validatePhone() {
+
+    let phone = document.getElementById("phoneInput").value;
+    let error = document.getElementById("errorMsg");
+
+    if (!/^\d{10}$/.test(phone)) {
+        error.style.display = "block";
+        error.innerText = "❌ Phone must contain exactly 10 digits (no letters)";
+        return false;
+    } else {
+        error.style.display = "none";
+        return true;
+    }
+}
+</script>
+
+</body>
+</html>
