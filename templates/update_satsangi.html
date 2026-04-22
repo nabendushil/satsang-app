@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Satsangi</title>
+</head>
+<body>
+
+<h2>Update Satsangi</h2>
+
+<form method="POST" action="/search_update">
+    <input type="text" name="name" placeholder="Enter name" required>
+    <button type="submit">Search</button>
+</form>
+
+{% if result %}
+    <h3>{{ result.name }}</h3>
+
+    <form method="POST" action="/delete_satsangi">
+        <input type="hidden" name="name" value="{{ result.name }}">
+        <button type="submit">Delete</button>
+    </form>
+
+{% endif %}
+
+</body>
+</html>
