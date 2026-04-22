@@ -2,25 +2,127 @@
 <html>
 <head>
     <title>Update Satsangi</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #111;
+            color: white;
+            text-align: center;
+        }
+
+        input {
+            padding: 10px;
+            width: 250px;
+        }
+
+        .name-btn {
+            display: block;
+            margin: 5px auto;
+            padding: 8px;
+            width: 250px;
+            cursor: pointer;
+        }
+
+        .box {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid gold;
+        }
+
+        button {
+            margin: 5px;
+            padding: 8px 12px;
+        }
+    </style>
 </head>
+
 <body>
 
 <h2>Update Satsangi</h2>
 
-<form method="POST" action="/search_update">
-    <input type="text" name="name" placeholder="Enter name" required>
-    <button type="submit">Search</button>
-</form>
+<input type="text" id="search" placeholder="Search name..." onkeyup="filterNames()">
 
-{% if result %}
-    <h3>{{ result.name }}</h3>
+<div id="list"></div>
 
-    <form method="POST" action="/delete_satsangi">
-        <input type="hidden" name="name" value="{{ result.name }}">
-        <button type="submit">Delete</button>
-    </form>
+<div id="result" class="box"></div>
 
-{% endif %}
+<script>
+
+const names = {{ names | tojson }};
+
+function renderList() {
+    const div = document.getElementById("list");
+    div.innerHTML = "";
+
+    names.forEach(n => {
+        let btn = document.createElement("button");
+        btn.innerText = n;
+        btn.className = "name-btn";
+
+        btn.onclick = () => loadData(n);
+
+        div.appendChild(btn);
+    });
+}
+
+function filterNames() {
+    const value = document.getElementById("search").value.toLowerCase();
+
+    const filtered = names.filter(n => n.toLowerCase().includes(value));
+
+    const div = document.getElementById("list");
+    div.innerHTML = "";
+
+    filtered.forEach(n => {
+        let btn = document.createElement("button");
+        btn.innerText = n;
+        btn.className = "name-btn";
+
+        btn.onclick = () => loadData(n);
+
+        div.appendChild(btn);
+    });
+}
+
+function loadData(name) {
+
+    fetch("/get_satsangi", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: `name=${name}`
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.status === "found") {
+
+            document.getElementById("result").innerHTML = `
+                <h3>${data.name}</h3>
+                <p>${data.address}</p>
+                <p>${data.familycode}</p>
+
+                <button onclick="deleteUser('${data.name}')">Delete</button>
+            `;
+        }
+    });
+}
+
+function deleteUser(name) {
+
+    if (!confirm("Are you sure?")) return;
+
+    fetch("/delete_satsangi", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: `name=${name}`
+    })
+    .then(() => location.reload());
+}
+
+renderList();
+
+</script>
 
 </body>
 </html>
