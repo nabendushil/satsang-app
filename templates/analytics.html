@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Analytics</title>
+
+<style>
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(circle at top, #111, #000);
+    color: white;
+    text-align: center;
+}
+
+h1, h2 {
+    color: gold;
+}
+
+/* 🏠 HOME BUTTON */
+.home-btn {
+    margin-top: 10px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255, 215, 0, 0.2);
+    color: gold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.home-btn:hover {
+    transform: scale(1.05);
+    background: rgba(255, 215, 0, 0.3);
+}
+
+/* 📦 LAYOUT (SIDE VIEW FIX) */
+.main-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px;
+    padding: 20px;
+    flex-wrap: wrap;
+}
+
+/* 📦 LEFT: PENDING LIST */
+.pending {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* NAME BUTTON */
+.name-box {
+    display: block;
+    width: 260px;
+    margin: 8px auto;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,215,0,0.2);
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.name-box:hover {
+    transform: scale(1.05);
+    border-color: gold;
+}
+
+/* 📊 RIGHT: RESULT PANEL */
+.result-panel {
+    width: 300px;
+    min-height: 200px;
+    padding: 15px;
+    border-radius: 15px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,215,0,0.2);
+}
+
+/* FORM */
+input {
+    padding: 10px;
+    width: 90%;
+    border-radius: 10px;
+    border: 1px solid rgba(255,215,0,0.3);
+    background: rgba(255,255,255,0.05);
+    color: white;
+    margin-top: 10px;
+}
+
+button.submit-btn {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 10px;
+    background: gold;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* 📱 MOBILE */
+@media (max-width: 700px) {
+    .main-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+</style>
+</head>
+<div style="margin: 15px;">
+    <input 
+        type="text" 
+        id="searchInput" 
+        placeholder="🔍 Search name..." 
+        onkeyup="filterNames()"
+        style="
+            padding: 10px;
+            width: 260px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,215,0,0.3);
+            background: rgba(255,255,255,0.05);
+            color: white;
+        "
+    >
+</div>
+
+<body>
+
+<h1>📊 Analytics</h1>
+
+<button class="home-btn" onclick="location.href='/'">🏠 Back to Home</button>
+
+<h2>🔴 Not Deposited</h2>
+
+<div class="main-container">
+
+    <!-- LEFT SIDE -->
+    <div class="pending">
+        {% for name in pending %}
+            <button class="name-box"
+                data-name="{{ name }}"
+                onclick="loadPerson('{{ name }}')">
+                {{ name }}
+            </button>
+        {% endfor %}
+    </div>
+
+    <!-- RIGHT SIDE RESULT -->
+    <div class="result-panel" id="result">
+        <h3>Select a name</h3>
+    </div>
+
+</div>
+
+<script>
+
+function loadPerson(name) {
+
+    fetch("/search_name", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "name=" + name
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        const result = document.getElementById("result");
+
+        if (data.status === "found") {
+
+            let html = `
+                <h2>${data.name}</h2>
+                <p><b>Family Code:</b> ${data.familycode}</p>
+                <p><b>Address:</b> ${data.address}</p>
+            `;
+
+            if (data.phone) {
+                html += `<p><b>Phone:</b> ${data.phone}</p>`;
+            } else {
+                html += `
+                    <form method="POST" action="/add_phone">
+                        <input type="hidden" name="name" value="${data.name}">
+                        <input type="text" name="phone" placeholder="Enter phone number" required>
+                        <button class="submit-btn" type="submit">Add Phone</button>
+                    </form>
+                `;
+            }
+
+            html += `
+                <form method="POST" action="/deposit">
+                    <input type="hidden" name="name" value="${data.name}">
+                    <input type="number" name="amount" placeholder="Enter amount" required>
+                    <button class="submit-btn">Deposit</button>
+                </form>
+            `;
+
+            result.innerHTML = html;
+
+        } else {
+            result.innerHTML = "❌ Not Found";
+        }
+
+    });
+}
+
+</script>
+<script>
+
+function filterNames() {
+
+    const input = document.getElementById("searchInput").value.toLowerCase();
+    const buttons = document.querySelectorAll(".name-box");
+
+    buttons.forEach(btn => {
+
+        const name = btn.getAttribute("data-name").toLowerCase();
+
+        if (name.includes(input)) {
+            btn.style.display = "block";
+        } else {
+            btn.style.display = "none";
+        }
+
+    });
+}
+
+</script>
+</body>
+</html>

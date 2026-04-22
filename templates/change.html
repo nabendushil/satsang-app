@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Change Amount</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(circle at top, #111, #000);
+    color: white;
+}
+
+/* TOP BAR */
+.top {
+    text-align: center;
+    padding: 15px;
+}
+
+.top input {
+    width: 60%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+}
+
+/* MAIN LAYOUT */
+.container {
+    display: flex;
+    height: 80vh;
+}
+
+/* LEFT SIDE (NAMES) */
+.left {
+    width: 40%;
+    overflow-y: auto;
+    border-right: 1px solid rgba(255,215,0,0.2);
+}
+
+.name-btn {
+    display: block;
+    width: 90%;
+    margin: 8px auto;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    color: white;
+    cursor: pointer;
+    text-align: left;
+}
+
+.name-btn:hover {
+    background: rgba(255,215,0,0.2);
+}
+
+/* RIGHT SIDE */
+.right {
+    width: 60%;
+    padding: 20px;
+}
+
+/* CARD */
+.card {
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid rgba(255,215,0,0.2);
+}
+
+/* BUTTON */
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.change-btn {
+    background: gold;
+    color: black;
+    font-weight: bold;
+}
+
+/* HOME BUTTON */
+.home-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<a href="/">
+    <button class="home-btn">🏠 Home</button>
+</a>
+
+<div class="top">
+    <h2>✏ Change Amount</h2>
+    <input type="text" id="search" placeholder="Search name..." onkeyup="filterNames()">
+</div>
+
+<div class="container">
+
+    <!-- LEFT -->
+    <div class="left" id="nameList">
+        {% for name in names %}
+        <button class="name-btn" onclick="selectName('{{name}}')">{{name}}</button>
+        {% endfor %}
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+        <div class="card" id="resultBox">
+            <h3>Select a person</h3>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+function filterNames() {
+    let input = document.getElementById("search").value.toLowerCase();
+    let buttons = document.getElementsByClassName("name-btn");
+
+    for (let btn of buttons) {
+        if (btn.innerText.toLowerCase().includes(input)) {
+            btn.style.display = "block";
+        } else {
+            btn.style.display = "none";
+        }
+    }
+}
+
+function selectName(name) {
+
+    fetch("/get_amount", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: "name=" + name
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        let box = document.getElementById("resultBox");
+
+        if (data.amount == 0) {
+            box.innerHTML = `
+                <h3>${data.name}</h3>
+                <p>❌ Amount is 0 → Cannot change</p>
+            `;
+            return;
+        }
+
+        box.innerHTML = `
+            <h3>${data.name}</h3>
+            <p>Current Amount: ₹${data.amount}</p>
+
+            <input type="number" id="newAmount" placeholder="Enter new amount">
+
+            <br>
+
+            <button class="change-btn" onclick="updateAmount('${data.name}')">
+                Update
+            </button>
+        `;
+    });
+}
+
+function updateAmount(name) {
+
+    let newAmount = document.getElementById("newAmount").value;
+
+    if (!newAmount || newAmount <= 0) {
+        alert("❌ Enter valid amount");
+        return;
+    }
+
+    // ✅ YOUR CUSTOM CONFIRM MESSAGE
+    if (!confirm("Are you sure that you will change?")) {
+        return;
+    }
+
+    fetch("/update_amount", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: `name=${name}&amount=${newAmount}`
+    })
+    .then(() => {
+        alert("✅ Amount Updated Successfully");
+        location.reload();
+    });
+}
+
+</script>
+
+</body>
+</html>

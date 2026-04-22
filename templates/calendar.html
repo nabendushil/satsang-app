@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Donation Calendar</title>
+
+<style>
+
+/* (YOUR EXISTING CSS — UNCHANGED) */
+
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(circle at top, #111, #000);
+    color: white;
+    text-align: center;
+}
+
+/* 💳 CALENDAR BOX */
+.calendar-box {
+    max-width: 520px;
+    margin: auto;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.08);
+}
+
+/* 🌟 HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.month-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: gold;
+}
+
+/* 🔘 BUTTONS */
+button {
+    padding: 10px 14px;
+    border: none;
+    background: gold;
+    color: black;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+}
+
+/* 📅 GRID */
+.weekdays, .days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-top: 10px;
+}
+
+.weekdays div {
+    font-weight: bold;
+    font-size: 12px;
+    color: gold;
+}
+
+/* 📦 DAY */
+.day {
+    padding: 10px;
+    margin: 3px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.empty { background: transparent; }
+
+.today {
+    background: rgba(255, 215, 0, 0.2);
+    color: gold;
+    border: 1px solid gold;
+}
+
+.donation {
+    background: rgba(255, 0, 0, 0.15);
+    border: 1px solid red;
+}
+
+/* 🏠 HOME */
+.home-btn {
+    margin-top: 25px;
+}
+
+/* =========================
+   🆕 PRAYER TABLE STYLE
+========================= */
+
+.prayer-box {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 20px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,215,0,0.2);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    border: 1px solid rgba(255,215,0,0.2);
+    padding: 10px;
+}
+
+th {
+    color: gold;
+}
+
+.download-btn {
+    margin-top: 15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ================= CALENDAR ================= -->
+<div class="calendar-box">
+
+    <div class="header">
+        <button onclick="prevMonth()">⬅</button>
+        <div class="month-title" id="monthTitle"></div>
+        <button onclick="nextMonth()">➡</button>
+    </div>
+
+    <div class="weekdays">
+        <div>Mon</div><div>Tue</div><div>Wed</div>
+        <div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+    </div>
+
+    <div class="days" id="days"></div>
+</div>
+
+<!-- ================= 🆕 PRAYER TABLE ================= -->
+
+<div class="prayer-box">
+
+<h2>🙏 Prayer Time (Darjeeling & Jalpaiguri)</h2>
+
+<table id="prayerTable">
+<tr>
+<th>Month</th>
+<th>Morning</th>
+<th>Evening</th>
+</tr>
+
+<tr><td>January</td><td>06:21 AM</td><td>05:05 PM</td></tr>
+<tr><td>February</td><td>06:08 AM</td><td>05:26 PM</td></tr>
+<tr><td>March</td><td>05:41 AM</td><td>05:43 PM</td></tr>
+<tr><td>April</td><td>05:10 AM</td><td>05:57 PM</td></tr>
+<tr><td>May</td><td>04:48 AM</td><td>06:13 PM</td></tr>
+<tr><td>June</td><td>04:42 AM</td><td>06:26 PM</td></tr>
+<tr><td>July</td><td>04:53 AM</td><td>06:26 PM</td></tr>
+<tr><td>August</td><td>05:07 AM</td><td>06:08 PM</td></tr>
+<tr><td>September</td><td>05:20 AM</td><td>05:37 PM</td></tr>
+<tr><td>October</td><td>05:34 AM</td><td>05:06 PM</td></tr>
+<tr><td>November</td><td>05:53 AM</td><td>04:45 PM</td></tr>
+<tr><td>December</td><td>06:13 AM</td><td>04:46 PM</td></tr>
+
+</table>
+
+<button onclick="location.href='/download_prayer'">
+    ⬇ Download
+</button>
+
+</div>
+
+<button class="home-btn" onclick="location.href='/'">🏠 Back to Home</button>
+
+<script>
+
+/* ===== YOUR CALENDAR JS (UNCHANGED) ===== */
+
+const year = 2026;
+
+const monthNames = [
+ "January","February","March","April","May","June",
+ "July","August","September","October","November","December"
+];
+
+let currentMonth = new Date().getMonth();
+let today = new Date().getDate();
+let todayMonth = new Date().getMonth();
+
+/* YOUR DONATION SET — SAME */
+const donationSet = new Set([
+    new Date(2026, 0, 11).toDateString(),
+    new Date(2026, 1, 10).toDateString(),
+    new Date(2026, 2, 12).toDateString(),
+    new Date(2026, 3, 11).toDateString(),
+    new Date(2026, 4, 11).toDateString(),
+    new Date(2026, 5, 10).toDateString(),
+    new Date(2026, 6, 10).toDateString(),
+    new Date(2026, 7, 9).toDateString(),
+    new Date(2026, 8, 8).toDateString(),
+    new Date(2026, 9, 8).toDateString(),
+    new Date(2026,10, 7).toDateString(),
+    new Date(2026,11, 7).toDateString()
+]);
+
+function daysInMonth(month, year) {
+    return new Date(year, month + 1, 0).getDate();
+}
+
+function renderCalendar() {
+
+    const daysDiv = document.getElementById("days");
+    const title = document.getElementById("monthTitle");
+
+    daysDiv.innerHTML = "";
+    title.innerText = monthNames[currentMonth] + " " + year;
+
+    const firstDay = new Date(year, currentMonth, 1).getDay();
+    let start = firstDay === 0 ? 6 : firstDay - 1;
+
+    for (let i = 0; i < start; i++) {
+        let empty = document.createElement("div");
+        empty.classList.add("empty");
+        daysDiv.appendChild(empty);
+    }
+
+    let totalDays = daysInMonth(currentMonth, year);
+
+    for (let d = 1; d <= totalDays; d++) {
+
+        let day = document.createElement("div");
+        day.classList.add("day");
+        day.innerText = d;
+
+        let currentDate = new Date(year, currentMonth, d);
+
+        if (currentMonth === todayMonth && d === today) {
+            day.classList.add("today");
+        }
+
+        if (donationSet.has(currentDate.toDateString())) {
+            day.classList.add("donation");
+        }
+
+        daysDiv.appendChild(day);
+    }
+}
+
+function nextMonth() {
+    currentMonth = (currentMonth + 1) % 12;
+    renderCalendar();
+}
+
+function prevMonth() {
+    currentMonth = (currentMonth - 1 + 12) % 12;
+    renderCalendar();
+}
+
+renderCalendar();
+
+
+</script>
+
+</body>
+</html>
